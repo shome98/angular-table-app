@@ -1,0 +1,266 @@
+<!-- Top Navigation Header -->
+<header class="navbar navbar-expand-lg navbar-dark bg-dark py-3 shadow sticky-top">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white fs-5" href="#">
+      <span class="brand-icon rounded-3 bg-primary d-flex align-items-center justify-content-center text-white">
+        <i class="fa-solid fa-table-cells"></i>
+      </span>
+      <span>Dynamic Table Forms</span>
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-2 fs-6">
+        5 Config Tables
+      </span>
+    </a>
+
+    <!-- Navbar Actions -->
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <!-- Live rows counter badge -->
+      <span class="badge bg-secondary d-flex align-items-center gap-1 py-2 px-3">
+        <i class="fa-solid fa-database text-info"></i>
+        <span>Total Rows: <strong>{{ totalRowCount }}</strong></span>
+      </span>
+
+      <!-- Form Health badge -->
+      <span
+        class="badge d-flex align-items-center gap-1 py-2 px-3 border"
+        [ngClass]="areAllTablesValid ? 'bg-success-subtle text-success border-success' : 'bg-warning-subtle text-warning-emphasis border-warning'">
+        <i [class]="areAllTablesValid ? 'fa-solid fa-shield-check' : 'fa-solid fa-triangle-exclamation'"></i>
+        <span>{{ areAllTablesValid ? 'All Valid (5/5)' : 'Fix ' + (5 - validTablesCount) + ' Table(s)' }}</span>
+      </span>
+
+      <!-- Export JSON Trigger -->
+      <button
+        type="button"
+        class="btn btn-outline-light btn-sm d-flex align-items-center gap-1"
+        (click)="openJsonModal('all')">
+        <i class="fa-solid fa-code"></i>
+        <span>View Live JSON</span>
+      </button>
+
+      <!-- Validate All -->
+      <button
+        type="button"
+        class="btn btn-primary btn-sm d-flex align-items-center gap-1"
+        (click)="validateAllTables()">
+        <i class="fa-solid fa-check-double"></i>
+        <span>Validate All</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Page Content -->
+<main class="container-fluid px-4 py-4">
+
+  <!-- Overview Hero / Stats Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0 stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon-wrapper rounded-3 bg-primary-subtle text-primary">
+            <i class="fa-solid fa-sliders fa-xl"></i>
+          </div>
+          <div>
+            <div class="text-muted small fw-medium">Configured Tables</div>
+            <h4 class="mb-0 fw-bold text-dark">5 Tables</h4>
+            <div class="small text-muted mt-1">100% Config & Component Reusable</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0 stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon-wrapper rounded-3 bg-success-subtle text-success">
+            <i class="fa-solid fa-list-check fa-xl"></i>
+          </div>
+          <div>
+            <div class="text-muted small fw-medium">Active Form Rows</div>
+            <h4 class="mb-0 fw-bold text-dark">{{ totalRowCount }} Rows</h4>
+            <div class="small text-success mt-1">
+              <i class="fa-solid fa-plus-circle me-1"></i>Dynamic row addition supported
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0 stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div
+            class="stat-icon-wrapper rounded-3"
+            [ngClass]="areAllTablesValid ? 'bg-info-subtle text-info' : 'bg-warning-subtle text-warning'">
+            <i class="fa-solid fa-circle-check fa-xl"></i>
+          </div>
+          <div>
+            <div class="text-muted small fw-medium">Validation Status</div>
+            <h4 class="mb-0 fw-bold text-dark">{{ validTablesCount }} / 5 Valid</h4>
+            <div class="small text-muted mt-1">Reactive Forms Validation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0 stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon-wrapper rounded-3 bg-dark-subtle text-dark">
+            <i class="fa-brands fa-bootstrap fa-xl"></i>
+          </div>
+          <div>
+            <div class="text-muted small fw-medium">Styling & Icons</div>
+            <h4 class="mb-0 fw-bold text-dark">Bootstrap 5 + FA</h4>
+            <div class="small text-muted mt-1">Loaded via CDN with Free Icons</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Filter Pills & Quick Navigation -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body py-2 px-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <!-- Tabs -->
+      <div class="nav nav-pills gap-1 flex-wrap">
+        <button
+          type="button"
+          class="btn btn-sm"
+          [ngClass]="activeTab === 'all' ? 'btn-primary' : 'btn-outline-secondary'"
+          (click)="setActiveTab('all')">
+          <i class="fa-solid fa-grip me-1"></i> All 5 Tables
+        </button>
+
+        <button
+          *ngFor="let cfg of tableConfigs; let idx = index"
+          type="button"
+          class="btn btn-sm d-flex align-items-center gap-1"
+          [ngClass]="activeTab === cfg.id ? 'btn-' + (cfg.themeColor || 'primary') : 'btn-outline-secondary'"
+          (click)="setActiveTab(cfg.id)">
+          <i [class]="cfg.icon || 'fa-solid fa-table'"></i>
+          <span>{{ idx + 1 }}. {{ cfg.title }}</span>
+          <span
+            class="badge rounded-pill ms-1"
+            [ngClass]="activeTab === cfg.id ? 'bg-white text-dark' : 'bg-secondary'">
+            {{ currentData[cfg.id]?.length || 0 }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Quick Reset All -->
+      <div class="d-flex align-items-center gap-2">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
+          (click)="resetAllTables()"
+          title="Reset all tables to dummy data">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>Reset All Defaults</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast Alert -->
+  <div
+    *ngIf="toastMessage"
+    class="alert alert-info alert-dismissible fade show shadow-sm d-flex align-items-center gap-2 mb-4"
+    role="alert">
+    <i class="fa-solid fa-circle-info fa-lg"></i>
+    <div class="flex-grow-1 fw-medium">{{ toastMessage }}</div>
+    <button type="button" class="btn-close" (click)="toastMessage = null" aria-label="Close"></button>
+  </div>
+
+  <!-- The 5 Configuration-Driven Table Forms -->
+  <div class="tables-container">
+    <ng-container *ngFor="let cfg of filteredConfigs">
+      <div [id]="'section-' + cfg.id" class="mb-4">
+        <app-dynamic-table-form
+          [config]="cfg"
+          [initialData]="tableDummyData[cfg.id] || []"
+          (dataChange)="onDataChange(cfg.id, $event)"
+          (validityChange)="onValidityChange(cfg.id, $event)">
+        </app-dynamic-table-form>
+      </div>
+    </ng-container>
+  </div>
+</main>
+
+<!-- Live JSON Preview Modal -->
+<div
+  *ngIf="showJsonModal"
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.55);">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-dark text-white py-3">
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+          <i class="fa-solid fa-code text-info"></i>
+          <span>Live Reactive Form Data (JSON)</span>
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closeJsonModal()"
+          aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-3 bg-light">
+        <!-- Target Selection Tabs inside Modal -->
+        <div class="d-flex flex-wrap gap-1 mb-3">
+          <button
+            type="button"
+            class="btn btn-sm"
+            [ngClass]="selectedTableForJson === 'all' ? 'btn-dark' : 'btn-outline-secondary'"
+            (click)="selectedTableForJson = 'all'">
+            All Tables Aggregated
+          </button>
+          <button
+            *ngFor="let cfg of tableConfigs"
+            type="button"
+            class="btn btn-sm"
+            [ngClass]="selectedTableForJson === cfg.id ? 'btn-dark' : 'btn-outline-secondary'"
+            (click)="selectedTableForJson = cfg.id">
+            <i [class]="cfg.icon" class="me-1"></i> {{ cfg.title }}
+          </button>
+        </div>
+
+        <!-- Code Block -->
+        <div class="position-relative">
+          <pre class="bg-dark text-light p-3 rounded-3 mb-0 json-display"><code>{{ formattedJson }}</code></pre>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-white d-flex justify-content-between align-items-center py-2">
+        <span class="small text-muted">
+          Updated in real-time as you add, delete, or edit rows.
+        </span>
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
+            (click)="copyJsonToClipboard()">
+            <i [class]="copySuccess ? 'fa-solid fa-check text-success' : 'fa-regular fa-copy'"></i>
+            <span>{{ copySuccess ? 'Copied to Clipboard!' : 'Copy JSON' }}</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-primary btn-sm d-flex align-items-center gap-1"
+            (click)="downloadJsonFile()">
+            <i class="fa-solid fa-download"></i>
+            <span>Download .json</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            (click)="closeJsonModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

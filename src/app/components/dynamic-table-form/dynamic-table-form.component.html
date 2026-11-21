@@ -1,0 +1,278 @@
+<div class="card table-form-card shadow-sm mb-4 border-0" [ngClass]="'border-top-' + (config.themeColor || 'primary')">
+  <!-- Card Header -->
+  <div class="card-header bg-white py-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <!-- Theme Icon -->
+      <div
+        class="icon-box rounded-3 d-flex align-items-center justify-content-center"
+        [ngClass]="'bg-' + (config.themeColor || 'primary') + '-subtle text-' + (config.themeColor || 'primary')">
+        <i [class]="config.icon || 'fa-solid fa-table'"></i>
+      </div>
+      <div>
+        <div class="d-flex align-items-center gap-2">
+          <h5 class="mb-0 fw-bold text-dark">{{ config.title }}</h5>
+          <span *ngIf="config.badge" class="badge" [ngClass]="config.badge.colorClass || 'bg-secondary'">
+            {{ config.badge.text }}
+          </span>
+        </div>
+        <p *ngIf="config.description" class="text-muted small mb-0 mt-1">
+          {{ config.description }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Header Actions & Status Badges -->
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <!-- Validity status indicator -->
+      <span
+        class="badge rounded-pill px-2 py-1 d-flex align-items-center gap-1 border"
+        [ngClass]="form.valid
+          ? 'bg-success-subtle text-success border-success-subtle'
+          : 'bg-danger-subtle text-danger border-danger-subtle'">
+        <i [class]="form.valid ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation'"></i>
+        {{ form.valid ? 'Form Valid' : 'Errors Detected' }}
+      </span>
+
+      <!-- Row Count Pill -->
+      <span class="badge bg-light text-secondary border px-2 py-1">
+        <i class="fa-solid fa-layer-group me-1"></i>
+        {{ rowsFormArray.length }} {{ rowsFormArray.length === 1 ? 'row' : 'rows' }}
+      </span>
+
+      <!-- Action buttons -->
+      <button
+        *ngIf="config.allowClear !== false"
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        title="Clear all rows"
+        (click)="clearAll()"
+        [disabled]="rowsFormArray.length === 0">
+        <i class="fa-solid fa-eraser me-1"></i> Clear
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        title="Reset to initial values"
+        (click)="resetToInitial()">
+        <i class="fa-solid fa-rotate-left me-1"></i> Reset
+      </button>
+
+      <!-- Primary Add Row Button in Header -->
+      <button
+        type="button"
+        class="btn btn-sm text-white d-flex align-items-center gap-1 shadow-sm"
+        [ngClass]="'btn-' + (config.themeColor || 'primary')"
+        (click)="addRow()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{ config.addBtnText || 'Add Row' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Card Body with Dynamic Table Form -->
+  <div class="card-body p-0">
+    <form [formGroup]="form">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped-columns align-middle mb-0">
+          <thead class="table-light text-uppercase small text-secondary">
+            <tr>
+              <th *ngIf="config.showRowNumbers !== false" style="width: 50px;" class="text-center">#</th>
+              <th
+                *ngFor="let col of config.columns"
+                [style.width]="col.width || 'auto'"
+                class="fw-semibold">
+                <span class="d-inline-flex align-items-center gap-1">
+                  {{ col.label }}
+                  <span *ngIf="col.required" class="text-danger fw-bold">*</span>
+                  <i
+                    *ngIf="col.tooltip"
+                    class="fa-regular fa-circle-question text-muted cursor-pointer"
+                    [title]="col.tooltip">
+                  </i>
+                </span>
+              </th>
+              <th
+                *ngIf="config.allowDelete !== false || config.allowDuplicate !== false"
+                style="width: 110px;"
+                class="text-center fw-semibold">
+                Actions
+              </th>
+            </tr>
+          </thead>
+
+          <tbody formArrayName="rows">
+            <!-- Empty State -->
+            <tr *ngIf="rowsFormArray.length === 0">
+              <td
+                [attr.colspan]="(config.columns.length + (config.showRowNumbers !== false ? 1 : 0) + 1)"
+                class="text-center py-5">
+                <div class="py-3">
+                  <div
+                    class="empty-icon-box rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                    [ngClass]="'bg-' + (config.themeColor || 'primary') + '-subtle text-' + (config.themeColor || 'primary')">
+                    <i class="fa-solid fa-inbox fa-2x"></i>
+                  </div>
+                  <h6 class="text-dark fw-bold mb-1">
+                    {{ config.emptyMessage || 'No records added yet.' }}
+                  </h6>
+                  <p class="text-muted small mb-3">
+                    Click the button below to add your first record row.
+                  </p>
+                  <button
+                    type="button"
+                    class="btn btn-sm text-white shadow-sm"
+                    [ngClass]="'btn-' + (config.themeColor || 'primary')"
+                    (click)="addRow()">
+                    <i class="fa-solid fa-plus me-1"></i> {{ config.addBtnText || 'Add Row' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Dynamic Form Rows -->
+            <tr
+              *ngFor="let rowGroup of rowsFormArray.controls; let i = index; trackBy: trackByIndex"
+              [formGroupName]="i"
+              class="form-row-item">
+              
+              <!-- Row Index -->
+              <td *ngIf="config.showRowNumbers !== false" class="text-center text-muted fw-semibold small">
+                {{ i + 1 }}
+              </td>
+
+              <!-- Dynamic Column Inputs -->
+              <td *ngFor="let col of config.columns" class="align-top py-2">
+                <!-- Text / Email Inputs -->
+                <ng-container *ngIf="col.type === 'text' || col.type === 'email'">
+                  <input
+                    [type]="col.type"
+                    [formControlName]="col.key"
+                    [placeholder]="col.placeholder || ''"
+                    class="form-control form-control-sm"
+                    [class.is-invalid]="isFieldInvalid(i, col.key)" />
+                </ng-container>
+
+                <!-- Number Input -->
+                <ng-container *ngIf="col.type === 'number'">
+                  <input
+                    type="number"
+                    [formControlName]="col.key"
+                    [placeholder]="col.placeholder || ''"
+                    [min]="col.min !== undefined ? col.min : null"
+                    [max]="col.max !== undefined ? col.max : null"
+                    [step]="col.step !== undefined ? col.step : 'any'"
+                    class="form-control form-control-sm"
+                    [class.is-invalid]="isFieldInvalid(i, col.key)" />
+                </ng-container>
+
+                <!-- Date Input -->
+                <ng-container *ngIf="col.type === 'date'">
+                  <input
+                    type="date"
+                    [formControlName]="col.key"
+                    class="form-control form-control-sm"
+                    [class.is-invalid]="isFieldInvalid(i, col.key)" />
+                </ng-container>
+
+                <!-- Select Dropdown -->
+                <ng-container *ngIf="col.type === 'select'">
+                  <select
+                    [formControlName]="col.key"
+                    class="form-select form-select-sm"
+                    [class.is-invalid]="isFieldInvalid(i, col.key)">
+                    <option value="" disabled selected>-- Select {{ col.label }} --</option>
+                    <option *ngFor="let opt of col.options" [value]="opt.value">
+                      {{ opt.label }}
+                    </option>
+                  </select>
+                </ng-container>
+
+                <!-- Checkbox / Toggle Switch -->
+                <ng-container *ngIf="col.type === 'checkbox'">
+                  <div class="form-check form-switch d-flex justify-content-center align-items-center pt-1">
+                    <input
+                      type="checkbox"
+                      [formControlName]="col.key"
+                      class="form-check-input cursor-pointer"
+                      role="switch" />
+                  </div>
+                </ng-container>
+
+                <!-- Textarea -->
+                <ng-container *ngIf="col.type === 'textarea'">
+                  <textarea
+                    [formControlName]="col.key"
+                    [placeholder]="col.placeholder || ''"
+                    rows="1"
+                    class="form-control form-control-sm"
+                    [class.is-invalid]="isFieldInvalid(i, col.key)">
+                  </textarea>
+                </ng-container>
+
+                <!-- Validation Error Feedback -->
+                <div class="invalid-feedback d-block small" *ngIf="isFieldInvalid(i, col.key)">
+                  <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                  {{ getErrorMessage(i, col.key, col) }}
+                </div>
+              </td>
+
+              <!-- Action Buttons -->
+              <td
+                *ngIf="config.allowDelete !== false || config.allowDuplicate !== false"
+                class="text-center align-middle py-2">
+                <div class="btn-group btn-group-sm" role="group">
+                  <!-- Duplicate Row -->
+                  <button
+                    *ngIf="config.allowDuplicate !== false"
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    title="Duplicate this row"
+                    (click)="duplicateRow(i)">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+
+                  <!-- Delete Row -->
+                  <button
+                    *ngIf="config.allowDelete !== false"
+                    type="button"
+                    class="btn btn-outline-danger"
+                    title="Delete this row"
+                    (click)="removeRow(i)">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </form>
+  </div>
+
+  <!-- Card Footer -->
+  <div class="card-footer bg-light py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <!-- Bottom Add Row Button -->
+    <div>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+        (click)="addRow()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{ config.addBtnText || 'Add Row' }}</span>
+      </button>
+    </div>
+
+    <!-- Quick stats / summary -->
+    <div class="d-flex align-items-center gap-3 small text-muted">
+      <span>
+        <strong>{{ rowsFormArray.length }}</strong> total records
+      </span>
+      <span>•</span>
+      <span [ngClass]="form.valid ? 'text-success' : 'text-danger fw-semibold'">
+        <i [class]="form.valid ? 'fa-solid fa-check me-1' : 'fa-solid fa-xmark me-1'"></i>
+        {{ form.valid ? 'All inputs valid' : 'Please check highlighted fields' }}
+      </span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,75 @@
+.table-form-card {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.border-top-primary {
+  border-top: 4px solid #0d6efd !important;
+}
+
+.border-top-success {
+  border-top: 4px solid #198754 !important;
+}
+
+.border-top-danger {
+  border-top: 4px solid #dc3545 !important;
+}
+
+.border-top-warning {
+  border-top: 4px solid #ffc107 !important;
+}
+
+.border-top-info {
+  border-top: 4px solid #0dcaf0 !important;
+}
+
+.border-top-dark {
+  border-top: 4px solid #212529 !important;
+}
+
+.border-top-secondary {
+  border-top: 4px solid #6c757d !important;
+}
+
+.icon-box {
+  width: 42px;
+  height: 42px;
+  font-size: 1.2rem;
+}
+
+.empty-icon-box {
+  width: 70px;
+  height: 70px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.form-row-item:hover {
+  background-color: rgba(13, 110, 253, 0.02);
+}
+
+.table th {
+  letter-spacing: 0.03em;
+  font-size: 0.78rem;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.invalid-feedback {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  line-height: 1.2;
+}
+
+.form-check-input:checked {
+  background-color: #198754;
+  border-color: #198754;
+}
