@@ -1,0 +1,16 @@
+.connection-flow .badge {
+  font-weight: 500;
+  font-size: 0.82rem;
+}
+
+.json-display {
+  max-height: 440px;
+  overflow-y: auto;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.master-table-section {
+  position: relative;
+}

@@ -1,0 +1,257 @@
+<!-- Architecture Connection Banner -->
+<div class="card shadow-sm border-0 mb-4 bg-white overflow-hidden">
+  <div class="card-body p-4">
+    <div class="row align-items-center g-3">
+      <div class="col-12 col-lg-8">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge bg-primary px-3 py-1 fs-6">
+            <i class="fa-solid fa-link me-1"></i> Connected Master-Detail Architecture
+          </span>
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+            <i class="fa-solid fa-arrows-rotate me-1" [class.fa-spin]="isSyncing"></i>
+            {{ isSyncing ? 'Syncing...' : 'Live Connected' }}
+          </span>
+        </div>
+        <h4 class="fw-bold text-dark mb-1">5 Synced Table Forms with Linked Fields</h4>
+        <p class="text-muted mb-3 small">
+          Adding a row in <strong>Table 1 (Master)</strong> automatically creates and binds a corresponding row in the <strong>next 4 tables</strong>.
+          The two fields <code>type</code> and <code>amount</code> are continuously linked from Table 1, while each subsequent table manages its own custom columns independently!
+        </p>
+
+        <!-- Visual Flow Diagram Ribbon -->
+        <div class="connection-flow d-flex align-items-center flex-wrap gap-2 pt-1">
+          <span class="badge bg-primary p-2 d-inline-flex align-items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-vault"></i> 1. Master Table
+          </span>
+          <i class="fa-solid fa-arrow-right text-primary"></i>
+          <span class="badge bg-warning-subtle text-dark border border-warning p-2 d-inline-flex align-items-center gap-1">
+            <i class="fa-solid fa-key text-warning"></i>
+            <strong>[ type, amount ]</strong>
+          </span>
+          <i class="fa-solid fa-arrow-right text-primary"></i>
+          <span class="badge bg-info-subtle text-dark border border-info p-2 d-inline-flex align-items-center gap-1">
+            <i class="fa-solid fa-sitemap"></i> 2. Dept (+4 cols)
+          </span>
+          <span class="badge bg-success-subtle text-dark border border-success p-2 d-inline-flex align-items-center gap-1">
+            <i class="fa-solid fa-file-contract"></i> 3. Vendor (+4 cols)
+          </span>
+          <span class="badge bg-warning-subtle text-dark border border-warning p-2 d-inline-flex align-items-center gap-1">
+            <i class="fa-solid fa-calendar-days"></i> 4. Schedule (+4 cols)
+          </span>
+          <span class="badge bg-danger-subtle text-dark border border-danger p-2 d-inline-flex align-items-center gap-1">
+            <i class="fa-solid fa-shield-halved"></i> 5. Audit (+4 cols)
+          </span>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="col-12 col-lg-4 text-lg-end">
+        <div class="d-flex flex-column flex-sm-row justify-content-lg-end gap-2">
+          <button
+            type="button"
+            class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2 shadow-sm"
+            (click)="triggerAddMasterRow()">
+            <i class="fa-solid fa-plus-circle fa-lg"></i>
+            <span>Add Row to Table 1 (+ Syncs 4)</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline-dark d-inline-flex align-items-center justify-content-center gap-1"
+            (click)="openJsonModal('all')">
+            <i class="fa-solid fa-code"></i>
+            <span>View JSON</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-1"
+            (click)="resetAll()"
+            title="Reset all tables to initial state">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Reset</span>
+          </button>
+        </div>
+
+        <!-- Live Sync Metric Stats -->
+        <div class="d-flex justify-content-lg-end gap-3 mt-3 small text-muted">
+          <div>
+            Master Rows: <strong class="text-dark">{{ masterRowCount }}</strong>
+          </div>
+          <div>•</div>
+          <div>
+            Total Budget: <strong class="text-success">${{ totalBudget | number }}</strong>
+          </div>
+          <div>•</div>
+          <div>
+            Sync Status: <span class="badge bg-success-subtle text-success">Healthy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Live Activity Sync Log Drawer (Collapsible) -->
+<div class="card shadow-sm border-0 mb-4 bg-light">
+  <div class="card-body py-2 px-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2 small">
+      <i class="fa-solid fa-satellite-dish text-primary fa-fade"></i>
+      <span class="fw-bold text-dark">Latest Sync Event:</span>
+      <span class="text-muted" *ngIf="syncLog.length > 0">
+        <span class="badge bg-secondary-subtle text-dark me-1">{{ syncLog[0].time }}</span>
+        {{ syncLog[0].message }}
+      </span>
+    </div>
+    <div class="text-muted small">
+      <i class="fa-solid fa-info-circle me-1"></i>
+      Edit <strong>Type</strong> or <strong>Amount</strong> in Table 1 to see real-time ripple.
+    </div>
+  </div>
+</div>
+
+<!-- Table 1: Master Allocation Table -->
+<div class="master-table-section mb-4">
+  <div class="d-flex align-items-center justify-content-between mb-2 px-1">
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-primary rounded-circle p-2">
+        <i class="fa-solid fa-crown text-white"></i>
+      </span>
+      <h5 class="fw-bold text-dark mb-0">Master Table (Controls Type & Amount for Tables 2 to 5)</h5>
+    </div>
+    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+      Primary Driver
+    </span>
+  </div>
+
+  <app-dynamic-table-form
+    #masterTable
+    [config]="configs[0]"
+    [initialData]="dummyData['master']"
+    (rowAdded)="onMasterRowAdded($event)"
+    (rowRemoved)="onMasterRowRemoved($event)"
+    (dataChange)="onMasterDataChange($event)"
+    (validityChange)="onValidityChange('master', $event)">
+  </app-dynamic-table-form>
+</div>
+
+<!-- Divider between Master & Connected Tables -->
+<div class="position-relative text-center my-4">
+  <hr class="text-muted opacity-25" />
+  <span class="position-absolute top-50 start-50 translate-middle bg-light px-3 py-1 rounded-pill border small fw-bold text-primary shadow-sm">
+    <i class="fa-solid fa-link me-1"></i> 4 CONNECTED OPERATIONAL TABLES (INHERITING TYPE & AMOUNT)
+  </span>
+</div>
+
+<!-- Table 2: Department Work Breakdown -->
+<div class="connected-table-section mb-4">
+  <app-dynamic-table-form
+    #deptTable
+    [config]="configs[1]"
+    [initialData]="dummyData['department']"
+    (dataChange)="onChildDataChange('department', $event)"
+    (validityChange)="onValidityChange('department', $event)">
+  </app-dynamic-table-form>
+</div>
+
+<!-- Table 3: Vendor & Procurement Breakdown -->
+<div class="connected-table-section mb-4">
+  <app-dynamic-table-form
+    #vendorTable
+    [config]="configs[2]"
+    [initialData]="dummyData['vendor']"
+    (dataChange)="onChildDataChange('vendor', $event)"
+    (validityChange)="onValidityChange('vendor', $event)">
+  </app-dynamic-table-form>
+</div>
+
+<!-- Table 4: Execution Schedule & Milestones -->
+<div class="connected-table-section mb-4">
+  <app-dynamic-table-form
+    #scheduleTable
+    [config]="configs[3]"
+    [initialData]="dummyData['schedule']"
+    (dataChange)="onChildDataChange('schedule', $event)"
+    (validityChange)="onValidityChange('schedule', $event)">
+  </app-dynamic-table-form>
+</div>
+
+<!-- Table 5: Audit, Risk & Compliance Controls -->
+<div class="connected-table-section mb-4">
+  <app-dynamic-table-form
+    #auditTable
+    [config]="configs[4]"
+    [initialData]="dummyData['audit']"
+    (dataChange)="onChildDataChange('audit', $event)"
+    (validityChange)="onValidityChange('audit', $event)">
+  </app-dynamic-table-form>
+</div>
+
+<!-- Live JSON Preview Modal -->
+<div
+  *ngIf="showJsonModal"
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.55);">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-dark text-white py-3">
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+          <i class="fa-solid fa-code text-info"></i>
+          <span>Connected Tables JSON Tree</span>
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closeJsonModal()"
+          aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-3 bg-light">
+        <div class="d-flex flex-wrap gap-1 mb-3">
+          <button
+            type="button"
+            class="btn btn-sm"
+            [ngClass]="selectedTableForJson === 'all' ? 'btn-dark' : 'btn-outline-secondary'"
+            (click)="selectedTableForJson = 'all'">
+            All 5 Tables Aggregated
+          </button>
+          <button
+            *ngFor="let cfg of configs"
+            type="button"
+            class="btn btn-sm"
+            [ngClass]="selectedTableForJson === cfg.id ? 'btn-dark' : 'btn-outline-secondary'"
+            (click)="selectedTableForJson = cfg.id">
+            <i [class]="cfg.icon" class="me-1"></i> {{ cfg.title }}
+          </button>
+        </div>
+
+        <div class="position-relative">
+          <pre class="bg-dark text-light p-3 rounded-3 mb-0 json-display"><code>{{ formattedJson }}</code></pre>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-white d-flex justify-content-between align-items-center py-2">
+        <span class="small text-muted">
+          Type and Amount are dynamically synchronized across all 5 tables.
+        </span>
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
+            (click)="copyJson()">
+            <i [class]="copySuccess ? 'fa-solid fa-check text-success' : 'fa-regular fa-copy'"></i>
+            <span>{{ copySuccess ? 'Copied!' : 'Copy JSON' }}</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            (click)="closeJsonModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

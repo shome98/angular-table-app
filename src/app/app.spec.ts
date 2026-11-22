@@ -1,38 +1,29 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
-import { TABLE_FORM_CONFIGS } from './constants/table-dummy-data';
+import { routes } from './app.routes';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [provideRouter(routes)]
     }).compileComponents();
   });
 
-  it('should create the app', () => {
+  it('should create the root app component', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
 
-  it('should load 5 table form configurations', () => {
+  it('should render the navigation bar with both route links', () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app.tableConfigs.length).toBe(5);
-  });
-
-  it('should have initial dummy data populated for all 5 tables', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    TABLE_FORM_CONFIGS.forEach(cfg => {
-      expect(app.tableDummyData[cfg.id]).toBeDefined();
-      expect(app.tableDummyData[cfg.id].length).toBeGreaterThan(0);
-    });
-  });
-
-  it('should calculate total row count across all tables', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app.totalRowCount).toBeGreaterThan(10);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const links = compiled.querySelectorAll('.nav-link');
+    expect(links.length).toBe(2);
+    expect(links[0].textContent).toContain('Independent Tables');
+    expect(links[1].textContent).toContain('Connected Tables');
   });
 });

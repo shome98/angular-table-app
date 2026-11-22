@@ -236,4 +236,19 @@ export class DynamicTableFormComponent implements OnInit, OnChanges, OnDestroy {
   trackByIndex(index: number): number {
     return index;
   }
+
+  updateRowField(rowIndex: number, colKey: string, value: any, emitEvent = true): void {
+    const row = this.rowsFormArray.at(rowIndex);
+    if (!row) return;
+    const ctrl = row.get(colKey);
+    if (ctrl && ctrl.value !== value) {
+      ctrl.setValue(value, { emitEvent });
+    }
+  }
+
+  setRows(data: any[]): void {
+    this.populateData(data);
+    this.dataChange.emit(this.rowsFormArray.value);
+    this.validityChange.emit(this.form.valid);
+  }
 }

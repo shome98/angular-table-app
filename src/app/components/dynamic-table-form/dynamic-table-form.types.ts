@@ -30,6 +30,8 @@ export interface TableColumnConfig {
   defaultValue?: any;
   width?: string;
   disabled?: boolean;
+  readOnly?: boolean;
+  badge?: string;
   tooltip?: string;
 }
 

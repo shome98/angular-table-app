@@ -69,7 +69,7 @@ describe('DynamicTableFormComponent', () => {
     const lastIndex = component.rowsFormArray.length - 1;
     const nameCtrl = component.rowsFormArray.at(lastIndex).get('name');
     nameCtrl?.markAsTouched();
-    expect(nameCtrl?.invalid).toBeTrue();
-    expect(component.isFieldInvalid(lastIndex, 'name')).toBeTrue();
+    expect(nameCtrl?.invalid).toBe(true);
+    expect(component.isFieldInvalid(lastIndex, 'name')).toBe(true);
   });
 });

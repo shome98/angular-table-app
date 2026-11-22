@@ -85,6 +85,9 @@
                 <span class="d-inline-flex align-items-center gap-1">
                   {{ col.label }}
                   <span *ngIf="col.required" class="text-danger fw-bold">*</span>
+                  <span *ngIf="col.badge" class="badge bg-primary-subtle text-primary border border-primary-subtle text-capitalize fw-normal py-0 px-1" style="font-size: 0.68rem;">
+                    {{ col.badge }}
+                  </span>
                   <i
                     *ngIf="col.tooltip"
                     class="fa-regular fa-circle-question text-muted cursor-pointer"
@@ -149,7 +152,9 @@
                     [type]="col.type"
                     [formControlName]="col.key"
                     [placeholder]="col.placeholder || ''"
+                    [readonly]="!!col.readOnly"
                     class="form-control form-control-sm"
+                    [class.bg-light]="col.readOnly"
                     [class.is-invalid]="isFieldInvalid(i, col.key)" />
                 </ng-container>
 
@@ -162,7 +167,9 @@
                     [min]="col.min !== undefined ? col.min : null"
                     [max]="col.max !== undefined ? col.max : null"
                     [step]="col.step !== undefined ? col.step : 'any'"
+                    [readonly]="!!col.readOnly"
                     class="form-control form-control-sm"
+                    [class.bg-light]="col.readOnly"
                     [class.is-invalid]="isFieldInvalid(i, col.key)" />
                 </ng-container>
 
@@ -180,7 +187,9 @@
                   <select
                     [formControlName]="col.key"
                     class="form-select form-select-sm"
-                    [class.is-invalid]="isFieldInvalid(i, col.key)">
+                    [class.bg-light]="col.readOnly"
+                    [class.is-invalid]="isFieldInvalid(i, col.key)"
+                    [style.pointer-events]="col.readOnly ? 'none' : 'auto'">
                     <option value="" disabled selected>-- Select {{ col.label }} --</option>
                     <option *ngFor="let opt of col.options" [value]="opt.value">
                       {{ opt.label }}

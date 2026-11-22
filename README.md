@@ -29,15 +29,33 @@ The application displays **5 distinct configuration-driven table forms** on a si
 
 ---
 
-## 📋 The 5 Configured Table Forms
+## 🗺️ Application Routes
 
-| # | Table Name | Key Entity | Input Types Demonstrated | Theme |
-|---|---|---|---|---|
-| 1 | **Team Members & Directory** | HR Staff | `text`, `email`, `select`, `date`, `number`, `checkbox` | Primary (Blue) |
-| 2 | **Product Stock & Inventory** | Logistics / Inventory | `text` (pattern), `select`, `number` (currency/qty), `checkbox` | Success (Green) |
-| 3 | **Sprint Backlog & Tasks** | Agile Sprint | `text`, `select` (priority & status), `number`, `date`, `checkbox` | Info (Cyan) |
-| 4 | **Vendors & Supplier Contracts** | Procurement | `text`, `select` (SLA & tier), `number`, `date`, `checkbox` | Warning (Yellow) |
-| 5 | **Department Expense Claims** | Finance / Claims | `text`, `select` (currency & category), `number`, `date`, `checkbox` | Danger (Red) |
+The app provides two interactive modes accessible via the top navigation bar:
+
+### 1. Route `/` — Independent Tables Mode
+- Hosts **5 independent configuration-driven table forms** (HR Employees, Product Inventory, Sprint Tasks, Vendor Contracts, Expense Claims).
+- Demonstrates how the reusable component handles 5 distinct schemas with unique input types, validations, and initial dummy datasets simultaneously.
+
+### 2. Route `/connected` — Connected Master-Detail Mode
+- Hosts **5 synchronized table forms** reusing `<app-dynamic-table-form>`:
+  - **Table 1: Master Budget Allocations (`master`)**:
+    - Fields: `title`, `type` (synced), `amount` (synced), `fiscalQuarter`, `owner`, `isApproved`.
+    - Adding a row or editing `type` or `amount` in Table 1 **automatically updates the next 4 tables in real time**!
+    - Deleting a row from Table 1 removes the matching synchronized row in the 4 connected tables.
+  - **Table 2: Department Work Breakdown (`department`)**:
+    - Connected fields: `type` (read-only, linked), `amount` (read-only, linked).
+    - Own columns: `department`, `leadPerson`, `utilizationPercent`, `headcount`.
+  - **Table 3: Vendor & Procurement Contracts (`vendor`)**:
+    - Connected fields: `type` (read-only, linked), `amount` (read-only, linked).
+    - Own columns: `vendorName`, `contractRef`, `paymentTerms`, `taxIncluded`.
+  - **Table 4: Execution Schedule & Milestones (`schedule`)**:
+    - Connected fields: `type` (read-only, linked), `amount` (read-only, linked).
+    - Own columns: `milestoneGoal`, `deliveryQuarter`, `targetDate`, `contingencyPercent`.
+  - **Table 5: Audit, Risk & Compliance Controls (`audit`)**:
+    - Connected fields: `type` (read-only, linked), `amount` (read-only, linked).
+    - Own columns: `riskRating`, `complianceStandard`, `auditorName`, `auditSignOff`.
+  - **Key Architecture Benefit**: Editing custom columns in child tables (e.g. typing a vendor name or milestone goal) is completely preserved while `type` and `amount` remain live-bound to Table 1!
 
 ---
 
